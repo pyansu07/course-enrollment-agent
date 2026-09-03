@@ -1,0 +1,9 @@
+.idea
+.venv
+fastapi-langgraph-agent.iml
+.env
+data/*.db*
+__pycache__/
+*.pyc
+.pytest_cache/
+.ruff_cache/
