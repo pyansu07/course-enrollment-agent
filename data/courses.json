@@ -1,0 +1,167 @@
+[
+  {
+    "id": "python-foundations",
+    "name": "Python Foundations",
+    "category": "programming",
+    "level": "Beginner",
+    "instructor": "Dr. Amara Okafor",
+    "price": 199.00,
+    "duration": "6 weeks",
+    "seats_available": 24,
+    "description": "Your first step into writing code. Starts from absolute zero with no prior programming experience assumed, and finishes with you building small working scripts on your own."
+  },
+  {
+    "id": "web-dev-fullstack",
+    "name": "Full-Stack Web Development",
+    "category": "programming",
+    "level": "Intermediate",
+    "instructor": "Marcus Lindqvist",
+    "price": 749.00,
+    "duration": "16 weeks",
+    "seats_available": 12,
+    "description": "Build and ship complete web applications end to end, covering both the browser side and the server side, with a deployed portfolio project by the final week."
+  },
+  {
+    "id": "data-analysis-pandas",
+    "name": "Data Analysis with Pandas",
+    "category": "data",
+    "level": "Intermediate",
+    "instructor": "Dr. Amara Okafor",
+    "price": 349.00,
+    "duration": "8 weeks",
+    "seats_available": 18,
+    "description": "Turn messy spreadsheets into clear answers. Focuses on cleaning real-world datasets, spotting trends, and producing charts that non-technical colleagues can actually read."
+  },
+  {
+    "id": "machine-learning-intro",
+    "name": "Machine Learning Essentials",
+    "category": "data",
+    "level": "Intermediate",
+    "instructor": "Priya Raghunathan",
+    "price": 599.00,
+    "duration": "12 weeks",
+    "seats_available": 15,
+    "description": "How predictive models actually work and when to trust them. Covers the core algorithms, how to evaluate a model honestly, and the traps that make results look better than they are."
+  },
+  {
+    "id": "deep-learning-nlp",
+    "name": "Deep Learning for Language",
+    "category": "data",
+    "level": "Advanced",
+    "instructor": "Priya Raghunathan",
+    "price": 899.00,
+    "duration": "14 weeks",
+    "seats_available": 8,
+    "description": "Work with transformers and large language models hands-on. Assumes you are already comfortable with machine learning fundamentals and want to build systems that understand text."
+  },
+  {
+    "id": "ux-design-fundamentals",
+    "name": "UX Design Fundamentals",
+    "category": "design",
+    "level": "Beginner",
+    "instructor": "Sofia Marchetti",
+    "price": 279.00,
+    "duration": "7 weeks",
+    "seats_available": 30,
+    "description": "Learn why people get confused by interfaces and how to fix it. Research, wireframing, and usability testing taught through redesigning products that frustrate their users."
+  },
+  {
+    "id": "graphic-design-brand",
+    "name": "Brand and Visual Identity",
+    "category": "design",
+    "level": "Intermediate",
+    "instructor": "Sofia Marchetti",
+    "price": 399.00,
+    "duration": "9 weeks",
+    "seats_available": 0,
+    "description": "Craft a coherent visual identity from scratch, covering typography, colour systems, and logo work, ending with a full brand guideline document for a real client brief."
+  },
+  {
+    "id": "cloud-aws-architect",
+    "name": "Cloud Architecture on AWS",
+    "category": "cloud",
+    "level": "Advanced",
+    "instructor": "Kwame Boateng",
+    "price": 949.00,
+    "duration": "14 weeks",
+    "seats_available": 10,
+    "description": "Design infrastructure that stays up under load and does not bankrupt you. Covers scaling, redundancy, and cost control, and prepares you for the associate architect certification."
+  },
+  {
+    "id": "devops-cicd",
+    "name": "DevOps and CI/CD Pipelines",
+    "category": "cloud",
+    "level": "Intermediate",
+    "instructor": "Kwame Boateng",
+    "price": 649.00,
+    "duration": "10 weeks",
+    "seats_available": 14,
+    "description": "Automate the path from commit to production. Containers, pipelines, and monitoring, aimed at teams tired of manual deployments breaking on Friday afternoons."
+  },
+  {
+    "id": "cybersecurity-basics",
+    "name": "Cybersecurity Essentials",
+    "category": "security",
+    "level": "Beginner",
+    "instructor": "Elena Vasquez",
+    "price": 329.00,
+    "duration": "8 weeks",
+    "seats_available": 22,
+    "description": "Understand how systems get broken into and how to defend them. Covers common attack patterns, safe password and network practice, and a practical incident response walkthrough."
+  },
+  {
+    "id": "ethical-hacking",
+    "name": "Penetration Testing in Practice",
+    "category": "security",
+    "level": "Advanced",
+    "instructor": "Elena Vasquez",
+    "price": 879.00,
+    "duration": "12 weeks",
+    "seats_available": 6,
+    "description": "Authorised offensive security testing in a controlled lab. You attack deliberately vulnerable systems to learn how defenders should think, with a written engagement report at the end."
+  },
+  {
+    "id": "digital-marketing",
+    "name": "Digital Marketing Strategy",
+    "category": "marketing",
+    "level": "Beginner",
+    "instructor": "Tomás Herrera",
+    "price": 249.00,
+    "duration": "6 weeks",
+    "seats_available": 28,
+    "description": "Get found online and turn attention into customers. Search visibility, paid campaigns, and email, with a focus on measuring whether any of it is actually working."
+  },
+  {
+    "id": "product-management",
+    "name": "Product Management Foundations",
+    "category": "business",
+    "level": "Intermediate",
+    "instructor": "Tomás Herrera",
+    "price": 549.00,
+    "duration": "10 weeks",
+    "seats_available": 16,
+    "description": "Decide what to build and defend that decision. Roadmapping, prioritisation, and stakeholder conversations, for engineers and designers moving into a product role."
+  },
+  {
+    "id": "public-speaking",
+    "name": "Confident Public Speaking",
+    "category": "business",
+    "level": "Beginner",
+    "instructor": "Nadia Farouk",
+    "price": 179.00,
+    "duration": "5 weeks",
+    "seats_available": 35,
+    "description": "For people who dread presenting. Practical work on nerves, structure, and delivery, built around weekly recorded practice with feedback rather than theory."
+  },
+  {
+    "id": "financial-modelling",
+    "name": "Financial Modelling for Startups",
+    "category": "business",
+    "level": "Advanced",
+    "instructor": "Nadia Farouk",
+    "price": 699.00,
+    "duration": "9 weeks",
+    "seats_available": 9,
+    "description": "Build the spreadsheet that convinces investors. Forecasting, unit economics, and valuation, taught by constructing a complete model for a fictional early-stage company."
+  }
+]
