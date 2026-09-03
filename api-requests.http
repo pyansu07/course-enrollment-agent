@@ -1,0 +1,160 @@
+### Flow 1: Q&A - course question
+POST {{host}}/chat
+Content-Type: application/json
+
+{
+  "message": "Tell me about your data courses, what do you have?",
+  "session_id": "qa-demo"
+}
+
+### Flow 1: Q&A - follow-up, same session
+POST {{host}}/chat
+Content-Type: application/json
+
+{
+  "message": "Do you have anything on design?",
+  "session_id": "qa-demo"
+}
+
+### Flow 1b: Semantic RAG - no keyword overlap (expects: Python Foundations)
+# "never written a line of code" -> matches "starts from absolute zero / no prior
+# programming experience", even though the query never says "beginner" or "Python".
+POST {{host}}/chat
+Content-Type: application/json
+
+{
+  "message": "I have never written a line of code in my life, where do I start?",
+  "session_id": "rag-demo"
+}
+
+### Flow 1b: Semantic RAG - intent, not keywords (expects: Confident Public Speaking)
+# "terrified of presenting" -> matches "for people who dread presenting / nerves".
+POST {{host}}/chat
+Content-Type: application/json
+
+{
+  "message": "I get terrified whenever I have to present to a room",
+  "session_id": "rag-demo"
+}
+
+### Flow 1b: Semantic RAG - paraphrase (expects: Data Analysis with Pandas)
+# "messy spreadsheets into something meaningful" -> matches the description directly.
+POST {{host}}/chat
+Content-Type: application/json
+
+{
+  "message": "How do I turn messy spreadsheets into something meaningful?",
+  "session_id": "rag-demo"
+}
+
+### Flow 1b: Semantic RAG - problem statement (expects: DevOps and CI/CD Pipelines)
+# "deployments keep breaking on Fridays" -> matches "teams tired of manual
+# deployments breaking on Friday afternoons", zero shared technical keywords.
+POST {{host}}/chat
+Content-Type: application/json
+
+{
+  "message": "Our releases keep breaking every time we ship, it is all manual",
+  "session_id": "rag-demo"
+}
+
+### Flow 1b: Semantic RAG - career goal (expects: Product Management Foundations)
+# "moving from engineering into deciding what to build".
+POST {{host}}/chat
+Content-Type: application/json
+
+{
+  "message": "I am an engineer who wants to move into deciding what we build",
+  "session_id": "rag-demo"
+}
+
+### Flow 2: Enroll - HITL step 1: draft
+POST {{host}}/chat
+Content-Type: application/json
+
+{
+  "message": "I want to enroll in Python Foundations",
+  "session_id": "enroll-demo"
+}
+
+### Flow 2: Enroll - HITL step 2: confirm
+POST {{host}}/chat
+Content-Type: application/json
+
+{
+  "message": "yes",
+  "session_id": "enroll-demo"
+}
+
+### Flow 2 (variant): Enroll - HITL step 1: draft
+POST {{host}}/chat
+Content-Type: application/json
+
+{
+  "message": "Sign me up for UX Design Fundamentals",
+  "session_id": "enroll-cancel-demo"
+}
+
+### Flow 2 (variant): Enroll - HITL step 2: cancel
+POST {{host}}/chat
+Content-Type: application/json
+
+{
+  "message": "no",
+  "session_id": "enroll-cancel-demo"
+}
+
+### Router fix: enrollment management must NOT route to track
+# These read like status questions but are management intent -> expects the enroll path.
+POST {{host}}/chat
+Content-Type: application/json
+
+{
+  "message": "I want to cancel my enrollment",
+  "session_id": "router-fix-demo"
+}
+
+### Router fix: refund request -> enroll path, not track
+POST {{host}}/chat
+Content-Type: application/json
+
+{
+  "message": "I am not happy with the course, I want a refund",
+  "session_id": "router-fix-demo-2"
+}
+
+### Guardrail: off-topic - should be rejected
+POST {{host}}/chat
+Content-Type: application/json
+
+{
+  "message": "What's the weather like today?",
+  "session_id": "guard-demo"
+}
+
+### Guardrail: empty message - Pydantic 422
+POST {{host}}/chat
+Content-Type: application/json
+
+{
+  "message": "",
+  "session_id": "guard-demo"
+}
+
+### Flow 3: Check enrollment status (needs a confirmed enrollment first)
+POST {{host}}/chat
+Content-Type: application/json
+
+{
+  "message": "What is the status of my enrollments?",
+  "session_id": "enroll-demo"
+}
+
+### Flow 3: Check progress - no enrollments yet
+POST {{host}}/chat
+Content-Type: application/json
+
+{
+  "message": "How far along am I in my course?",
+  "session_id": "track-new"
+}
