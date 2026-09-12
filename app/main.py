@@ -37,6 +37,17 @@ async def lifespan(app: FastAPI):
 app = FastAPI(title="Course Enrollment Assistant", lifespan=lifespan)
 
 
+@app.get("/healthz")
+async def healthz() -> dict:
+    """Liveness check for the platform's health probe.
+
+    Deliberately doesn't touch Chroma or the LLM — those are external
+    dependencies with their own failure modes. This only confirms the process
+    is up and finished startup (the checkpointer is open, the graph is built).
+    """
+    return {"status": "ok"}
+
+
 @app.post("/chat", response_model=ChatResponse)
 async def chat(request: ChatRequest) -> ChatResponse:
     session_id: str = request.session_id or str(uuid.uuid4())
