@@ -45,12 +45,17 @@ class ChromaCourseRepository(CourseRepository):
         embedding_model: str = DEFAULT_EMBEDDING_MODEL,
         top_k: int = 3,
         max_distance: float | None = None,
+        ssl: bool = False,
     ) -> None:
         self._host = host
         self._port = port
         self._collection_name = collection_name
         self._embedding_model = embedding_model
         self._top_k = top_k
+        # Local dev talks to Chroma over plain HTTP inside docker-compose. A Chroma
+        # instance deployed as its own Render service is only reachable over HTTPS
+        # (Render terminates TLS at its edge) — hence this being configurable.
+        self._ssl = ssl
         # Optional relevance cutoff: drop hits whose cosine distance exceeds this.
         # None keeps the raw top-k (Q&A always gets some context to work with).
         self._max_distance = max_distance
@@ -71,7 +76,7 @@ class ChromaCourseRepository(CourseRepository):
         # The query is embedded client-side with the same local model used for
         # indexing, so the server only ever stores and compares vectors.
         embedding_fn = LocalHuggingFaceEmbeddingFunction(model_name=self._embedding_model)
-        client = chromadb.HttpClient(host=self._host, port=self._port)
+        client = chromadb.HttpClient(host=self._host, port=self._port, ssl=self._ssl)
         # Pass the EF explicitly: get_collection otherwise defaults to a local ONNX
         # model, which embeds queries with the wrong dimensions vs the index.
         self._collection = client.get_collection(

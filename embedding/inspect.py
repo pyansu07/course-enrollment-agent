@@ -30,8 +30,9 @@ def inspect_collection(mode: str) -> None:
     # Host-side port from docker-compose (8001:8000). Inside the container env sets 8000.
     port = int(os.environ.get("CHROMA_PORT", "8001"))
     collection_name = os.environ.get("CHROMA_COLLECTION", "courses")
+    ssl = os.environ.get("CHROMA_SSL", "false").lower() == "true"
 
-    client = chromadb.HttpClient(host=host, port=port)
+    client = chromadb.HttpClient(host=host, port=port, ssl=ssl)
     print(f"Connected to ChromaDB at {host}:{port} | heartbeat={client.heartbeat()}")
     print(f"Collections: {[c.name for c in client.list_collections()]}")
 

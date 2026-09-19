@@ -49,6 +49,7 @@ def build_index() -> None:
     port = int(os.environ.get("CHROMA_PORT", "8000"))
     collection_name = os.environ.get("CHROMA_COLLECTION", "courses")
     embedding_model = os.environ.get("EMBEDDING_MODEL", DEFAULT_EMBEDDING_MODEL)
+    ssl = os.environ.get("CHROMA_SSL", "false").lower() == "true"
 
     courses = load_courses()
     print(f"Loaded {len(courses)} courses from the catalog.")
@@ -69,7 +70,7 @@ def build_index() -> None:
             f"this same model or retrieval will fail."
         )
 
-    client = chromadb.HttpClient(host=host, port=port)
+    client = chromadb.HttpClient(host=host, port=port, ssl=ssl)
     print(f"Connected to ChromaDB at {host}:{port}.")
 
     # Recreate the collection from scratch so re-indexing is idempotent. This is also

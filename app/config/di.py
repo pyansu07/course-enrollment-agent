@@ -28,6 +28,7 @@ course_repo = ChromaCourseRepository(
     collection_name=os.environ.get("CHROMA_COLLECTION", "courses"),
     embedding_model=os.environ.get("EMBEDDING_MODEL", DEFAULT_EMBEDDING_MODEL),
     top_k=int(os.environ.get("RAG_TOP_K", "3")),
+    ssl=os.environ.get("CHROMA_SSL", "false").lower() == "true",
 )
 enrollment_repo = InMemoryEnrollmentRepository()
 
