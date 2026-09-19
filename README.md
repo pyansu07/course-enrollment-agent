@@ -10,6 +10,20 @@ The full breakdown of how it's wired — every node, the router, the interrupt/r
 mechanism — is in [ARCHITECTURE.md](ARCHITECTURE.md). This README covers what it does, a
 router bug I found and fixed with measured numbers, and what I'd build next.
 
+## Try it live
+
+**[course-enrollment-agent.vercel.app](https://course-enrollment-agent.vercel.app)** — a
+minimal chat UI talking to the deployed backend on Render. Try the enroll flow ("I want to
+enroll in Python Foundations" → confirm → check status) — that's the human-in-the-loop path
+and the one I'd point you at first.
+
+Q&A (semantic search over the catalog) is intentionally not surfaced in that UI right now —
+see [Known limitations of the live deployment](#known-limitations-of-the-live-deployment)
+below for why, and how to see it working locally instead.
+
+Technical fallback: Swagger at `/docs` on the [backend URL](https://course-enrollment-agent.onrender.com/docs),
+or the `curl` examples further down.
+
 ## What it does
 
 Three skills, one endpoint (`POST /chat`), an LLM classifier deciding which path a message
@@ -117,6 +131,8 @@ mechanics of the `interrupt()` / `Command(resume=...)` pause, is in
 | State persistence | LangGraph SQLite checkpointer (+ InMemorySaver for tests) |
 | Linting & formatting | ruff |
 | Containerization | Docker + docker-compose |
+| CI/CD | GitHub Actions (lint/test/build gate → build, tag, push to GHCR → Render deploy hook) |
+| Hosting | Render (backend + Chroma, both free tier) + Vercel (static frontend) |
 
 Cost-wise, nothing in the request path calls a paid API: chat inference runs on Groq's
 free tier and every embedding is computed locally. The only spend is whatever tokens the
@@ -139,6 +155,58 @@ Embeddings moved from OpenAI's `text-embedding-3-small` (1536-dim) to a local Mi
 drop-in swap — `embedding/index.py` drops and rebuilds the collection every time it runs,
 which is exactly what makes changing `EMBEDDING_MODEL` safe rather than a silent
 dimension-mismatch failure later.
+
+## Deployment
+
+Three pieces, wired together with a GitOps-style pipeline rather than any platform's
+built-in "watch my repo" auto-deploy:
+
+- **Backend** — Render Web Service, built from the repo's `Dockerfile`. Deploys are
+  triggered exclusively by a GitHub Actions pipeline, not Render's own auto-deploy (which
+  is turned off): `ci.yml` runs lint + tests + a Docker build-validation on every PR and on
+  push to `main`; `cd.yml` listens for `ci.yml` completing successfully on `main`
+  (`workflow_run`, gated on `conclusion == 'success'`), then builds the image, tags it both
+  `sha-<commit>` and `latest`, pushes to GitHub Container Registry, and hits a Render
+  deploy hook — a one-time, unguessable URL stored only as a GitHub secret — to trigger the
+  actual redeploy.
+- **Vector store** — a second Render Web Service running the `chromadb/chroma` image
+  directly (no Dockerfile needed, deployed straight from the public image), reachable over
+  HTTPS.
+- **Frontend** — a static page (`frontend/`) on Vercel, deployed via Vercel's own git
+  integration — no CI gate, since there's no build step or test suite for a single static
+  HTML file to gate on.
+
+### Known limitations of the live deployment
+
+Worth being upfront about, since these are real constraints of staying on every platform's
+free tier, not things I didn't think about:
+
+- **Q&A (RAG) currently fails on the deployed backend.** The embedding model
+  (`sentence-transformers` + PyTorch) only ever loads into memory on the *first* Q&A
+  request — and Render's free tier caps at 512MB RAM, which that load appears to exceed,
+  killing the container mid-request (a 502 from Render's proxy, not an error from the app
+  itself). Enroll and status-check never touch this code path and are unaffected. The fix
+  is architectural, not a config tweak: swap the custom PyTorch-based embedding function for
+  ChromaDB's own built-in ONNX Runtime one — same model (`all-MiniLM-L6-v2`, 384-dim), far
+  lighter at runtime, and it removes the `torch` dependency entirely. Documented here rather
+  than fixed yet because free tier's real ceiling is 512MB even one paid tier up (only a
+  bigger jump buys more RAM), so I wanted to fix the actual architecture rather than throw
+  money at it. In the meantime, the two Q&A-triggering suggestion chips are removed from
+  the live frontend's empty state so the demo doesn't route someone straight into a crash —
+  the code path still exists and works, `docker compose up` runs it locally with no memory
+  ceiling.
+- **Chroma's index is ephemeral.** No persistent disk on the free tier, so the vector
+  collection is wiped on every restart of that service — including just spinning back up
+  after ~15 minutes of inactivity, not only redeploys. Re-run the indexer against the live
+  URL before relying on it (see `make index` vs. the manual command in
+  [What I'd improve next](#what-id-improve-next)).
+- **A crashed node leaves its session stuck.** `main.py`'s resume check is just
+  `bool(snapshot.next)` — it can't distinguish "genuinely paused at `await_confirmation`"
+  from "crashed mid-node and never reached `END`." Found this via the Q&A crash above: once
+  a session hits it, every subsequent message on that `session_id` gets fed in as a resume
+  attempt into the same broken step, regardless of what the user actually types. A fresh
+  `session_id` (or just an incognito window) sidesteps it; the real fix needs the resume
+  check to distinguish those two states.
 
 ## Quick start
 
@@ -217,6 +285,10 @@ suite above is the one thing that does.
 
 ## What I'd improve next
 
+- **Switch to ChromaDB's built-in ONNX embedding function.** The concrete fix for the
+  live Q&A crash above — same `all-MiniLM-L6-v2` model, no `torch`/`sentence-transformers`
+  dependency, small enough to actually fit the free tier's 512MB. Also shrinks the Docker
+  image and speeds up cold starts, independent of the memory fix.
 - **No cancellation flow.** The router fix correctly sends "cancel my enrollment" to the
   `enroll` skill now, but that skill only knows how to draft a *new* sign-up — it has no
   code path for "find my existing enrollment and cancel it." Right now that produces an
