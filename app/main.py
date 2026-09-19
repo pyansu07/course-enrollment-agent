@@ -10,6 +10,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 from fastapi import FastAPI  # noqa: E402
+from fastapi.middleware.cors import CORSMiddleware  # noqa: E402
 from langgraph.checkpoint.sqlite.aio import AsyncSqliteSaver  # noqa: E402
 from langgraph.graph import StateGraph  # noqa: E402
 from langgraph.types import Command  # noqa: E402
@@ -35,6 +36,20 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(title="Course Enrollment Assistant", lifespan=lifespan)
+
+# The frontend (frontend/index.html) is a separate origin on Vercel calling this
+# API directly from the browser — without CORS headers the browser blocks the
+# fetch() before this app ever sees the request. Scoped to this project's Vercel
+# domains specifically, not "*": the regex also covers Vercel's per-branch/PR
+# preview deployments (course-enrollment-chat-<hash>-<user>.vercel.app), not just
+# the production alias.
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["https://course-enrollment-chat.vercel.app"],
+    allow_origin_regex=r"https://course-enrollment-chat.*\.vercel\.app",
+    allow_methods=["POST"],
+    allow_headers=["Content-Type"],
+)
 
 
 @app.get("/healthz")
