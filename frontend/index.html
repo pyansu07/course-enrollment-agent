@@ -4,170 +4,490 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Course Enrollment Assistant</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
 <style>
   :root {
-    --bg: #f7f7f8;
-    --panel: #ffffff;
-    --border: #e3e3e6;
-    --text: #1a1a1a;
-    --muted: #6b6b70;
-    --user: #2563eb;
-    --user-text: #ffffff;
-    --assistant: #eef0f3;
-    --error: #dc2626;
-    --confirm: #b45309;
-    --confirm-bg: #fef3c7;
+    --bg: #f5f1e8;
+    --panel: #fbf9f4;
+    --text: #1c1a17;
+    --muted: #7a7468;
+    --border: #e9e2d2;
+    --accent: #1c1a17;
+    --accent-text: #faf8f3;
+    --success: #4a7a52;
+    --success-bg: #e7efe4;
+    --error: #a8402c;
+    --error-bg: #f7e4dd;
+    --radius-lg: 22px;
+    --radius-md: 14px;
+    --radius-sm: 10px;
   }
   * { box-sizing: border-box; }
+  html, body { height: 100%; }
   body {
     margin: 0;
-    background: var(--bg);
+    background-color: var(--bg);
+    background-image: radial-gradient(rgba(28, 26, 23, 0.06) 1px, transparent 1.5px);
+    background-size: 24px 24px;
     color: var(--text);
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
     display: flex;
     justify-content: center;
+    align-items: center;
     min-height: 100vh;
-    padding: 24px 12px;
+    padding: 32px 16px;
   }
+
+  button { font-family: inherit; }
+  :focus-visible { outline: 2px solid var(--text); outline-offset: 2px; }
+
+  /* ---------- App shell ---------- */
   .app {
     width: 100%;
-    max-width: 640px;
+    max-width: 960px;
+    height: min(780px, calc(100vh - 64px));
     display: flex;
     flex-direction: column;
-    height: calc(100vh - 48px);
     background: var(--panel);
     border: 1px solid var(--border);
-    border-radius: 12px;
+    border-radius: var(--radius-lg);
     overflow: hidden;
+    box-shadow: 0 1px 2px rgba(28, 26, 23, 0.04), 0 20px 44px rgba(28, 26, 23, 0.08);
   }
+
+  /* ---------- Header ---------- */
   header {
-    padding: 16px 20px;
+    flex-shrink: 0;
+    padding: 18px 24px;
     border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 12px;
   }
+  .logo {
+    flex-shrink: 0;
+    width: 34px;
+    height: 34px;
+    border-radius: 10px;
+    background: var(--accent);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--accent-text);
+  }
+  .header-text { flex: 1; min-width: 0; }
   header h1 {
     margin: 0;
-    font-size: 16px;
-    font-weight: 600;
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    line-height: 1.25;
   }
   header p {
-    margin: 4px 0 0;
-    font-size: 12px;
+    margin: 2px 0 0;
+    font-size: 13px;
     color: var(--muted);
   }
-  #status-badge {
-    display: inline-block;
-    margin-top: 8px;
+  .status-pill {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12.5px;
+    font-weight: 500;
+    color: var(--muted);
+    padding: 6px 10px;
+    border-radius: 999px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+  }
+  .status-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--success);
+    flex-shrink: 0;
+  }
+  #confirm-banner {
+    margin-top: 6px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
     font-size: 12px;
-    color: var(--confirm);
-    background: var(--confirm-bg);
-    padding: 2px 8px;
+    font-weight: 600;
+    color: #8a6a1e;
+    background: #f0e4c0;
+    padding: 3px 10px;
     border-radius: 999px;
   }
-  #status-badge[hidden] { display: none; }
-  #messages {
+  #confirm-banner[hidden] { display: none; }
+
+  /* ---------- Message area ---------- */
+  #chat-body {
     flex: 1;
     overflow-y: auto;
-    padding: 16px 20px;
     display: flex;
     flex-direction: column;
+  }
+
+  /* Empty state */
+  #empty-state {
+    margin: auto;
+    max-width: 480px;
+    text-align: center;
+    padding: 32px 24px;
+  }
+  #empty-state[hidden] { display: none; }
+  .empty-avatar {
+    width: 52px;
+    height: 52px;
+    margin: 0 auto 18px;
+    border-radius: 16px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text);
+  }
+  #empty-state h2 {
+    margin: 0 0 8px;
+    font-size: 26px;
+    font-weight: 700;
+    letter-spacing: -0.015em;
+  }
+  #empty-state > p {
+    margin: 0 0 24px;
+    font-size: 14.5px;
+    color: var(--muted);
+    line-height: 1.5;
+  }
+  .suggestions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
     gap: 10px;
+    text-align: left;
   }
+  .suggestion-chip {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 14px;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    font-size: 13.5px;
+    font-weight: 500;
+    color: var(--text);
+    cursor: pointer;
+    text-align: left;
+    transition: transform 180ms ease, border-color 180ms ease, background 180ms ease;
+  }
+  .suggestion-chip:hover {
+    transform: translateY(-2px);
+    border-color: #cfc5aa;
+    background: var(--bg);
+  }
+  .chip-icon {
+    flex-shrink: 0;
+    width: 22px;
+    height: 22px;
+    border-radius: 7px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--muted);
+  }
+
+  /* Message list */
+  #messages {
+    padding: 20px 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  #messages[hidden] { display: none; }
+
+  .msg-row {
+    display: flex;
+    gap: 10px;
+    padding: 8px 0;
+    animation: msgIn 220ms ease both;
+  }
+  @keyframes msgIn {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .msg-row.user { justify-content: flex-end; }
+  .msg-row.assistant { justify-content: flex-start; }
+
+  .avatar {
+    flex-shrink: 0;
+    width: 28px;
+    height: 28px;
+    border-radius: 9px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text);
+    margin-top: 2px;
+  }
+
   .msg {
-    max-width: 80%;
-    padding: 10px 14px;
-    border-radius: 14px;
-    font-size: 14px;
-    line-height: 1.45;
-    white-space: pre-wrap;
-    word-wrap: break-word;
+    max-width: 68%;
+    padding: 11px 15px;
+    border-radius: var(--radius-md);
+    font-size: 14.5px;
+    line-height: 1.55;
   }
-  .msg.user {
-    align-self: flex-end;
-    background: var(--user);
-    color: var(--user-text);
+  .msg p { margin: 0 0 8px; }
+  .msg p:last-child { margin-bottom: 0; }
+  .msg ul { margin: 4px 0 8px; padding-left: 20px; }
+  .msg li { margin-bottom: 3px; }
+  .msg code {
+    background: rgba(28, 26, 23, 0.08);
+    padding: 1px 5px;
+    border-radius: 4px;
+    font-size: 0.9em;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  }
+  .msg-row.user .msg {
+    background: var(--accent);
+    color: var(--accent-text);
     border-bottom-right-radius: 4px;
   }
-  .msg.assistant {
-    align-self: flex-start;
-    background: var(--assistant);
+  .msg-row.assistant .msg {
+    background: var(--panel);
     color: var(--text);
+    border: 1px solid var(--border);
     border-bottom-left-radius: 4px;
   }
-  .msg.error {
-    background: #fee2e2;
+  .msg-row.error .msg {
+    background: var(--error-bg);
     color: var(--error);
+    border-color: transparent;
   }
-  .msg.typing { color: var(--muted); font-style: italic; }
+  .retry-btn {
+    margin-top: 8px;
+    border: 1px solid rgba(168, 64, 44, 0.35);
+    background: transparent;
+    color: var(--error);
+    font-size: 12.5px;
+    font-weight: 600;
+    padding: 5px 12px;
+    border-radius: 999px;
+    cursor: pointer;
+  }
+  .retry-btn:hover { background: rgba(168, 64, 44, 0.08); }
+
+  /* Typing indicator */
+  .typing-dots { display: inline-flex; gap: 4px; padding: 3px 0; }
+  .typing-dots span {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--muted);
+    animation: typingBounce 1.1s infinite ease-in-out;
+  }
+  .typing-dots span:nth-child(2) { animation-delay: 0.15s; }
+  .typing-dots span:nth-child(3) { animation-delay: 0.3s; }
+  @keyframes typingBounce {
+    0%, 60%, 100% { transform: translateY(0); opacity: 0.5; }
+    30% { transform: translateY(-4px); opacity: 1; }
+  }
+
+  /* ---------- Confirm actions ---------- */
   #confirm-actions {
     display: flex;
     gap: 8px;
-    padding: 0 20px 12px;
+    padding: 0 24px 14px;
+    flex-shrink: 0;
   }
   #confirm-actions[hidden] { display: none; }
   #confirm-actions button {
     border: 1px solid var(--border);
     background: var(--panel);
-    padding: 6px 14px;
+    color: var(--text);
+    padding: 7px 16px;
     border-radius: 999px;
     font-size: 13px;
+    font-weight: 600;
     cursor: pointer;
+    transition: background 150ms ease, transform 150ms ease;
   }
   #confirm-actions button:hover { background: var(--bg); }
-  form {
-    display: flex;
-    gap: 8px;
-    padding: 14px 20px;
+  #confirm-actions button:active { transform: scale(0.97); }
+  #confirm-actions .yes { border-color: var(--success); color: var(--success); }
+
+  /* ---------- Composer ---------- */
+  .composer {
+    flex-shrink: 0;
+    padding: 14px 24px 18px;
     border-top: 1px solid var(--border);
   }
-  input[type="text"] {
-    flex: 1;
-    padding: 10px 14px;
+  form {
+    display: flex;
+    align-items: flex-end;
+    gap: 8px;
+    padding: 8px 8px 8px 16px;
+    background: var(--bg);
     border: 1px solid var(--border);
-    border-radius: 999px;
-    font-size: 14px;
+    border-radius: var(--radius-md);
+    transition: border-color 180ms ease, box-shadow 180ms ease;
+  }
+  form:focus-within {
+    border-color: #cfc5aa;
+    box-shadow: 0 0 0 3px rgba(28, 26, 23, 0.05);
+  }
+  textarea#chat-input {
+    flex: 1;
+    resize: none;
+    border: none;
+    background: transparent;
+    color: var(--text);
+    font-family: inherit;
+    font-size: 14.5px;
+    line-height: 1.5;
+    padding: 8px 0;
+    max-height: 120px;
     outline: none;
   }
-  input[type="text"]:focus { border-color: var(--user); }
-  button[type="submit"] {
-    padding: 10px 18px;
+  textarea#chat-input::placeholder { color: var(--muted); }
+  .send-btn {
+    flex-shrink: 0;
+    width: 38px;
+    height: 38px;
     border: none;
-    border-radius: 999px;
-    background: var(--user);
-    color: #fff;
-    font-size: 14px;
+    border-radius: 50%;
+    background: var(--accent);
+    color: var(--accent-text);
+    display: flex;
+    align-items: center;
+    justify-content: center;
     cursor: pointer;
+    transition: transform 150ms ease, opacity 150ms ease;
   }
-  button[type="submit"]:disabled { opacity: 0.5; cursor: default; }
+  .send-btn:hover:not(:disabled) { transform: scale(1.06); }
+  .send-btn:active:not(:disabled) { transform: scale(0.94); }
+  .send-btn:disabled { opacity: 0.4; cursor: default; }
+  .composer-hint {
+    margin: 8px 2px 0;
+    font-size: 11.5px;
+    color: var(--muted);
+  }
+
+  /* ---------- Responsive ---------- */
+  @media (max-width: 680px) {
+    body { padding: 0; align-items: stretch; }
+    .app { max-width: 100%; height: 100vh; border-radius: 0; border: none; }
+    header { padding: 14px 16px; }
+    #messages, .composer { padding-left: 16px; padding-right: 16px; }
+    #confirm-actions { padding-left: 16px; padding-right: 16px; }
+    .msg { max-width: 82%; }
+    .suggestions { grid-template-columns: 1fr; }
+    .composer-hint { display: none; }
+  }
 </style>
 </head>
 <body>
   <div class="app">
     <header>
-      <h1>Course Enrollment Assistant</h1>
-      <p>Ask about courses, enroll, or check enrollment status.</p>
-      <span id="status-badge" hidden>Awaiting enrollment confirmation</span>
+      <div class="logo" aria-hidden="true">
+        <svg width="18" height="18" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect x="1" y="1" width="9" height="9" rx="3" fill="currentColor"/>
+          <rect x="12" y="1" width="9" height="9" rx="3" fill="currentColor" opacity="0.5"/>
+          <rect x="1" y="12" width="9" height="9" rx="3" fill="currentColor" opacity="0.5"/>
+          <rect x="12" y="12" width="9" height="9" rx="3" fill="currentColor" opacity="0.85"/>
+        </svg>
+      </div>
+      <div class="header-text">
+        <h1>Course Enrollment Assistant</h1>
+        <p>Ask about courses, enroll, or check enrollment status.</p>
+        <span id="confirm-banner" hidden>Awaiting enrollment confirmation</span>
+      </div>
+      <div class="status-pill">
+        <span class="status-dot" aria-hidden="true"></span>
+        <span>Online</span>
+      </div>
     </header>
 
-    <div id="messages"></div>
+    <div id="chat-body">
+      <div id="empty-state">
+        <div class="empty-avatar" aria-hidden="true">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 3L14.2 9.2L20.5 11.5L14.2 13.8L12 20L9.8 13.8L3.5 11.5L9.8 9.2L12 3Z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <h2>How can I help you today?</h2>
+        <p>Ask me about courses, enrollment, prerequisites, or your enrollment status.</p>
+        <div class="suggestions" id="suggestions">
+          <button type="button" class="suggestion-chip" data-text="Show me the available courses">
+            <span class="chip-icon" aria-hidden="true">
+              <svg width="13" height="13" viewBox="0 0 16 16" fill="none"><rect x="1.5" y="3" width="13" height="10" rx="1.5" stroke="currentColor" stroke-width="1.3"/><path d="M1.5 6H14.5" stroke="currentColor" stroke-width="1.3"/></svg>
+            </span>
+            <span>Show available courses</span>
+          </button>
+          <button type="button" class="suggestion-chip" data-text="How do I enroll in a course?">
+            <span class="chip-icon" aria-hidden="true">
+              <svg width="13" height="13" viewBox="0 0 16 16" fill="none"><path d="M8 2v12M2 8h12" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+            </span>
+            <span>How do I enroll?</span>
+          </button>
+          <button type="button" class="suggestion-chip" data-text="What is the status of my enrollment?">
+            <span class="chip-icon" aria-hidden="true">
+              <svg width="13" height="13" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.3"/><path d="M8 5v3l2 1.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+            </span>
+            <span>Check my enrollment status</span>
+          </button>
+          <button type="button" class="suggestion-chip" data-text="What are the prerequisites for your courses?">
+            <span class="chip-icon" aria-hidden="true">
+              <svg width="13" height="13" viewBox="0 0 16 16" fill="none"><path d="M3 4h10M3 8h10M3 12h6" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+            </span>
+            <span>Course prerequisites</span>
+          </button>
+        </div>
+      </div>
+
+      <div id="messages" hidden></div>
+    </div>
 
     <div id="confirm-actions" hidden>
-      <button type="button" id="yes-btn">Yes, confirm</button>
+      <button type="button" class="yes" id="yes-btn">Yes, confirm</button>
       <button type="button" id="no-btn">No, cancel</button>
     </div>
 
-    <form id="chat-form">
-      <input type="text" id="chat-input" placeholder="Type a message..." autocomplete="off" />
-      <button type="submit">Send</button>
-    </form>
+    <div class="composer">
+      <form id="chat-form">
+        <textarea
+          id="chat-input"
+          rows="1"
+          placeholder="Message the assistant..."
+          aria-label="Message the assistant"
+        ></textarea>
+        <button type="submit" class="send-btn" id="send-btn" aria-label="Send message">
+          <svg width="16" height="16" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M10 15.5V4.5M10 4.5L4.5 10M10 4.5L15.5 10" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+      </form>
+      <p class="composer-hint">Press Enter to send &middot; Shift+Enter for a new line</p>
+    </div>
   </div>
 
   <script>
-    // Backend base URL — the live Render deployment.
+    // ============================================================
+    // Backend integration — unchanged from the previous version.
+    // Same endpoint, same request shape, same session/confirmation logic.
+    // ============================================================
     const API_URL = "https://course-enrollment-agent.onrender.com/chat";
 
-    // One session_id per browser, persisted across page reloads so a
-    // multi-turn conversation (and the enroll -> confirm HITL flow, which
-    // spans two separate /chat calls) survives a refresh.
     function getSessionId() {
       let id = localStorage.getItem("session_id");
       if (!id) {
@@ -178,41 +498,138 @@
     }
     const sessionId = getSessionId();
 
-    // True right after a draft-enrollment message comes back, until the
-    // user's next message resolves it (confirm or cancel). The backend
-    // doesn't expose this as a field on the response — it's inferred from
-    // the exact confirmation prompt text prepare_enrollment always sends.
     let awaitingConfirmation = false;
+    let lastFailedMessage = null;
 
+    const emptyStateEl = document.getElementById("empty-state");
     const messagesEl = document.getElementById("messages");
+    const chatBodyEl = document.getElementById("chat-body");
     const formEl = document.getElementById("chat-form");
     const inputEl = document.getElementById("chat-input");
-    const statusEl = document.getElementById("status-badge");
+    const sendBtnEl = document.getElementById("send-btn");
+    const confirmBannerEl = document.getElementById("confirm-banner");
     const confirmActionsEl = document.getElementById("confirm-actions");
+    const suggestionsEl = document.getElementById("suggestions");
 
-    function addMessage(role, text) {
-      const div = document.createElement("div");
-      div.className = "msg " + role;
-      div.textContent = text;
-      messagesEl.appendChild(div);
-      messagesEl.scrollTop = messagesEl.scrollHeight;
-      return div;
+    // ---------- Lightweight, safe markdown-ish rendering for assistant text ----------
+    // Escapes HTML first, then layers on **bold**, `code`, and "- " bullet lists —
+    // enough to render what the LLM actually produces without a markdown library.
+    function escapeHtml(str) {
+      return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    }
+    function inlineFormat(str) {
+      return str
+        .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
+        .replace(/`([^`]+?)`/g, "<code>$1</code>");
+    }
+    function renderAssistantText(text) {
+      const blocks = escapeHtml(text).split(/\n{2,}/);
+      return blocks
+        .map((block) => {
+          const lines = block.split("\n").filter((l) => l.length > 0);
+          const isList = lines.length > 0 && lines.every((l) => /^\s*[-*]\s+/.test(l));
+          if (isList) {
+            const items = lines.map((l) => `<li>${inlineFormat(l.replace(/^\s*[-*]\s+/, ""))}</li>`).join("");
+            return `<ul>${items}</ul>`;
+          }
+          return `<p>${lines.map(inlineFormat).join("<br>")}</p>`;
+        })
+        .join("");
+    }
+
+    function scrollToBottom() {
+      chatBodyEl.scrollTo({ top: chatBodyEl.scrollHeight, behavior: "smooth" });
+    }
+
+    function hideEmptyState() {
+      if (!emptyStateEl.hidden) {
+        emptyStateEl.hidden = true;
+        messagesEl.hidden = false;
+      }
+    }
+
+    function addUserMessage(text) {
+      hideEmptyState();
+      const row = document.createElement("div");
+      row.className = "msg-row user";
+      row.innerHTML = `<div class="msg"></div>`;
+      row.querySelector(".msg").textContent = text;
+      messagesEl.appendChild(row);
+      scrollToBottom();
+      return row;
+    }
+
+    function addAssistantMessage(text) {
+      hideEmptyState();
+      const row = document.createElement("div");
+      row.className = "msg-row assistant";
+      row.innerHTML = `
+        <div class="avatar" aria-hidden="true">
+          <svg width="14" height="14" viewBox="0 0 22 22" fill="none"><rect x="1" y="1" width="9" height="9" rx="3" fill="currentColor"/><rect x="12" y="1" width="9" height="9" rx="3" fill="currentColor" opacity="0.5"/><rect x="1" y="12" width="9" height="9" rx="3" fill="currentColor" opacity="0.5"/><rect x="12" y="12" width="9" height="9" rx="3" fill="currentColor" opacity="0.85"/></svg>
+        </div>
+        <div class="msg"></div>`;
+      row.querySelector(".msg").innerHTML = renderAssistantText(text);
+      messagesEl.appendChild(row);
+      scrollToBottom();
+      return row;
+    }
+
+    function addTypingIndicator() {
+      hideEmptyState();
+      const row = document.createElement("div");
+      row.className = "msg-row assistant";
+      row.innerHTML = `
+        <div class="avatar" aria-hidden="true">
+          <svg width="14" height="14" viewBox="0 0 22 22" fill="none"><rect x="1" y="1" width="9" height="9" rx="3" fill="currentColor"/><rect x="12" y="1" width="9" height="9" rx="3" fill="currentColor" opacity="0.5"/><rect x="1" y="12" width="9" height="9" rx="3" fill="currentColor" opacity="0.5"/><rect x="12" y="12" width="9" height="9" rx="3" fill="currentColor" opacity="0.85"/></svg>
+        </div>
+        <div class="msg" aria-label="Assistant is typing">
+          <span class="typing-dots"><span></span><span></span><span></span></span>
+        </div>`;
+      messagesEl.appendChild(row);
+      scrollToBottom();
+      return row;
+    }
+
+    function addErrorMessage(retryText) {
+      hideEmptyState();
+      const row = document.createElement("div");
+      row.className = "msg-row error";
+      row.innerHTML = `
+        <div class="msg">
+          Sorry, I couldn't reach the assistant just now. It may just be waking up
+          (the backend can take up to a minute after being idle) — please try again.
+          <br />
+          <button type="button" class="retry-btn">Retry</button>
+        </div>`;
+      row.querySelector(".retry-btn").addEventListener("click", () => {
+        row.remove();
+        sendMessage(retryText);
+      });
+      messagesEl.appendChild(row);
+      scrollToBottom();
     }
 
     function setAwaitingConfirmation(value) {
       awaitingConfirmation = value;
-      statusEl.hidden = !value;
+      confirmBannerEl.hidden = !value;
       confirmActionsEl.hidden = !value;
-      inputEl.placeholder = value ? "Type yes or no..." : "Type a message...";
+      inputEl.placeholder = value ? "Type yes or no..." : "Message the assistant...";
+    }
+
+    function autoResize() {
+      inputEl.style.height = "auto";
+      inputEl.style.height = Math.min(inputEl.scrollHeight, 120) + "px";
     }
 
     async function sendMessage(text) {
-      addMessage("user", text);
+      addUserMessage(text);
       inputEl.value = "";
+      autoResize();
       inputEl.disabled = true;
+      sendBtnEl.disabled = true;
       confirmActionsEl.hidden = true;
 
-      const typingEl = addMessage("assistant typing", "...");
+      const typingRow = addTypingIndicator();
 
       try {
         const res = await fetch(API_URL, {
@@ -220,31 +637,31 @@
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ message: text, session_id: sessionId }),
         });
-        typingEl.remove();
+        typingRow.remove();
 
         if (!res.ok) {
-          addMessage("assistant error", `Server error (${res.status}). Please try again.`);
+          console.error("Chat request failed with status", res.status);
+          lastFailedMessage = text;
+          addErrorMessage(text);
           setAwaitingConfirmation(false);
           return;
         }
 
         const data = await res.json();
-        addMessage("assistant", data.answer);
+        addAssistantMessage(data.answer);
 
         const askingToConfirm = data.answer.includes(
           "Would you like to confirm this enrollment?"
         );
         setAwaitingConfirmation(askingToConfirm);
       } catch (err) {
-        typingEl.remove();
-        addMessage(
-          "assistant error",
-          "Couldn't reach the server. The backend is on Render's free tier and " +
-            "spins down after inactivity — if this is the first message in a " +
-            "while, wait ~30s for it to wake up and try again."
-        );
+        typingRow.remove();
+        console.error("Chat request errored", err);
+        lastFailedMessage = text;
+        addErrorMessage(text);
       } finally {
         inputEl.disabled = false;
+        sendBtnEl.disabled = false;
         inputEl.focus();
       }
     }
@@ -254,6 +671,22 @@
       const text = inputEl.value.trim();
       if (!text) return;
       sendMessage(text);
+    });
+
+    inputEl.addEventListener("input", autoResize);
+    inputEl.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" && !e.shiftKey) {
+        e.preventDefault();
+        formEl.requestSubmit();
+      }
+    });
+
+    suggestionsEl.addEventListener("click", (e) => {
+      const chip = e.target.closest(".suggestion-chip");
+      if (!chip) return;
+      inputEl.value = chip.dataset.text;
+      autoResize();
+      inputEl.focus();
     });
 
     document.getElementById("yes-btn").addEventListener("click", () => sendMessage("yes"));
