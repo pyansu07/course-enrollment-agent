@@ -45,8 +45,8 @@ app = FastAPI(title="Course Enrollment Assistant", lifespan=lifespan)
 # the production alias.
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["https://course-enrollment-chat.vercel.app"],
-    allow_origin_regex=r"https://course-enrollment-chat.*\.vercel\.app",
+    allow_origins=["https://course-enrollment-agent.vercel.app"],
+    allow_origin_regex=r"https://course-enrollment-agent.*\.vercel\.app",
     allow_methods=["POST"],
     allow_headers=["Content-Type"],
 )
